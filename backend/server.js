@@ -34,7 +34,20 @@ const io = new Server(server, {
 
 connectDB();
 
-app.use(helmet());
+app.use(
+  helmet({
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc: ["'self'"],
+        connectSrc: ["'self'"],
+        scriptSrc: ["'self'", "'unsafe-inline'"],
+        styleSrc: ["'self'", "'unsafe-inline'"],
+        imgSrc: ["'self'", 'data:', 'blob:'],
+        mediaSrc: ["'self'", 'blob:'],
+      },
+    },
+  })
+);
 app.use(compression());
 app.use(morgan('dev'));
 app.use(cors({ origin: CLIENT_URL, credentials: true }));

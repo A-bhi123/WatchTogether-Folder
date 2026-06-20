@@ -1,0 +1,125 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  * {
+    box-sizing: border-box;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply bg-netflix-dark text-netflix-light antialiased;
+    font-family: 'Inter', system-ui, sans-serif;
+  }
+
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: #1a1a1a;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: #404040;
+    border-radius: 3px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: #606060;
+  }
+
+  input:-webkit-autofill,
+  input:-webkit-autofill:hover,
+  input:-webkit-autofill:focus {
+    -webkit-box-shadow: 0 0 0 1000px #242424 inset !important;
+    -webkit-text-fill-color: #e5e5e5 !important;
+  }
+}
+
+@layer components {
+  .btn-primary {
+    @apply bg-netflix-red hover:bg-red-700 text-white font-semibold py-2.5 px-6 rounded-md transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed active:scale-95;
+  }
+
+  .btn-secondary {
+    @apply bg-surface-raised hover:bg-surface-overlay text-white font-semibold py-2.5 px-6 rounded-md transition-all duration-200 border border-white/10 active:scale-95;
+  }
+
+  .btn-ghost {
+    @apply text-netflix-gray hover:text-white hover:bg-white/10 font-medium py-2 px-4 rounded-md transition-all duration-200;
+  }
+
+  .input-field {
+    @apply w-full bg-surface-raised border border-white/10 text-white placeholder-netflix-gray rounded-md px-4 py-3 text-sm focus:outline-none focus:border-netflix-red focus:ring-1 focus:ring-netflix-red transition-all duration-200;
+  }
+
+  .card {
+    @apply bg-surface rounded-xl border border-white/5 p-4;
+  }
+
+  .glass {
+    @apply bg-black/40 backdrop-blur-md border border-white/10;
+  }
+}
+
+/* Video player custom styles */
+video::-webkit-media-controls {
+  display: none !important;
+}
+
+video::-webkit-media-controls-enclosure {
+  display: none !important;
+}
+
+/* Participant video tiles */
+.video-tile {
+  position: relative;
+  overflow: hidden;
+  border-radius: 12px;
+  background: #1a1a1a;
+  aspect-ratio: 16/9;
+}
+
+.video-tile video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Animated gradient background for auth pages */
+.auth-bg {
+  background: 
+    radial-gradient(ellipse at 20% 50%, rgba(229, 9, 20, 0.15) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 20%, rgba(229, 9, 20, 0.1) 0%, transparent 50%),
+    #141414;
+}
+
+/* Loading shimmer */
+@keyframes shimmer {
+  0% { background-position: -1000px 0; }
+  100% { background-position: 1000px 0; }
+}
+
+.shimmer {
+  animation: shimmer 2s infinite linear;
+  background: linear-gradient(to right, #1a1a1a 4%, #2a2a2a 25%, #1a1a1a 36%);
+  background-size: 1000px 100%;
+}
+
+/* WebRTC video grid */
+.video-grid-1 { grid-template-columns: 1fr; }
+.video-grid-2 { grid-template-columns: repeat(2, 1fr); }
+.video-grid-3 { grid-template-columns: repeat(2, 1fr); }
+.video-grid-4 { grid-template-columns: repeat(2, 1fr); }
+.video-grid-5 { grid-template-columns: repeat(3, 1fr); }
+.video-grid-6 { grid-template-columns: repeat(3, 1fr); }
+.video-grid-7 { grid-template-columns: repeat(3, 1fr); }
+.video-grid-8 { grid-template-columns: repeat(3, 1fr); }
+.video-grid-9 { grid-template-columns: repeat(3, 1fr); }
+.video-grid-many { grid-template-columns: repeat(4, 1fr); }

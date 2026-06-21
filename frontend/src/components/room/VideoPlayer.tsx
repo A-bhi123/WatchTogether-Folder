@@ -387,13 +387,29 @@ export default function VideoPlayer({ showControls: showControlsProp, videoContr
                 type="range" min={0} max={duration || 100} step={0.5}
                 value={currentTime}
                 onChange={handleSeek}
-                onMouseDown={() => setIsSeeking(true)}
-                onMouseUp={finishSeek}
-                onTouchEnd={finishSeek}
-                className="w-full h-1 rounded-full appearance-none cursor-pointer"
-                style={{
-                  background: `linear-gradient(to right,#E50914 ${progress}%,rgba(255,255,255,0.2) ${progress}%)`
-                }}
+               onMouseDown={() => setIsSeeking(true)}
+onMouseUp={finishSeek}
+onTouchStart={() => setIsSeeking(true)}
+onTouchMove={(e) => {
+  const input = e.target as HTMLInputElement;
+  const rect = input.getBoundingClientRect();
+  const touch = e.touches[0];
+  const ratio = Math.max(0, Math.min(1, (touch.clientX - rect.left) / rect.width));
+  const newTime = ratio * (duration || 0);
+  if (videoRef.current) videoRef.current.currentTime = newTime;
+  setCurrentTime(newTime);
+}}
+onTouchEnd={finishSeek}
+style={{
+  background: `linear-gradient(to right,#E50914 ${progress}%,rgba(255,255,255,0.2) ${progress}%)`,
+  width: '100%',
+  height: '20px',
+  WebkitAppearance: 'none',
+  appearance: 'none',
+  borderRadius: '9999px',
+  cursor: 'pointer',
+  touchAction: 'none',
+}}
               />
             </div>
 

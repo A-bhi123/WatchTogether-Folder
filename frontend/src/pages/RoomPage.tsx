@@ -21,8 +21,8 @@ export default function RoomPage() {
   const navigate = useNavigate();
   const { room, joinRoom, leaveRoom, initLocalStream, requestSync } = useRoom();
   const [loading, setLoading] = useState(true);
-  const [activePanel, setActivePanel] = useState<Panel>('chat');
-  const [isChatVisible, setIsChatVisible] = useState(true);
+  const [activePanel, setActivePanel] = useState<Panel>('null');
+  const [isChatVisible, setIsChatVisible] = useState(false);
   const joinedCodeRef = useRef<string | null>(null);
 
   const [showHeader, setShowHeader] = useState(true);
@@ -200,6 +200,7 @@ export default function RoomPage() {
           <div
             className="flex-1 overflow-hidden bg-black relative cursor-pointer"
             onClick={handleVideoAreaTap}
+            onTouchEnd={handleVideoAreaTap}
           >
             <VideoPlayer showControls={showVideoControls} />
           </div>
@@ -218,6 +219,7 @@ export default function RoomPage() {
                 <RoomControls
                   isChatVisible={isChatVisible}
                   onToggleChatVisible={handleToggleChatVisible}
+                    onLeave={handleLeave}
                 />
               </motion.div>
             )}

@@ -43,6 +43,7 @@ interface RoomContextType {
   stopScreenShare: () => void;
   selectMovie: (file: File) => void;
   initLocalStream: () => Promise<void>;
+  changeQuality: (quality: '480p' | '720p' | '1080p') => void;
 }
 
 const RoomContext = createContext<RoomContextType | null>(null);
@@ -894,7 +895,46 @@ export const RoomProvider = ({ children }: { children: ReactNode }) => {
       startHostMovieBroadcast(url, file.name);
       toast.success(`🎬 "${file.name}" — streaming to all participants`);
     }, 100);
-  }, [startHostMovieBroadcast]);
+ }, [startHostMovieBroadcast]);
+
+  const changeQuality = useCallback((quality: '480p' | '720p' | '1080p') => {
+    const videoEl = movieVideoElRef.current;
+    const stream = movieStreamLocalRef.current;
+    if (!videoEl || !stream) return;
+
+    const fps = quality === '480p' ? 15 : quality === '720p' ? 30 : 60;
+    const bitrate = quality === '480p' ? 2_000_000 : quality === '720p' ? 8_000_000 : 20_000_000;
+
+    // @ts-ignore
+    const newStream: MediaStream = videoEl.captureStream
+      // @ts-ignore
+      ? videoEl.captureStream(fps)
+      // @ts-ignore
+      : videoEl.mozCaptureStream?.(fps) ?? null;
+
+    if (!newStream) return;
+
+    peerConnections.current.forEach((pc) => {
+      if (pc.signalingState === 'closed') return;
+      pc.getSenders().forEach(sender => {
+        if (!sender.track) return;
+        const newTrack = sender.track.kind === 'video'
+          ? newStream.getVideoTracks()[0]
+          : newStream.getAudioTracks()[0];
+        if (newTrack) sender.replaceTrack(newTrack).catch(() => {});
+
+        const params = sender.getParameters();
+        if (params.encodings?.length) {
+          params.encodings[0].maxBitrate = sender.track.kind === 'video'
+            ? bitrate : 510_000;
+          sender.setParameters(params).catch(() => {});
+        }
+      });
+    });
+
+    movieStreamLocalRef.current = newStream;
+    toast.success(`Quality: ${quality}`);
+  }, []);
 
   // Restore host movie after leave + rejoin
   useEffect(() => {
@@ -947,7 +987,7 @@ export const RoomProvider = ({ children }: { children: ReactNode }) => {
       joinRoom, leaveRoom, sendMessage, toggleChatEnabled,
       emitPlay, emitPause, emitSeek, emitRate, requestSync,
       toggleMute, toggleCamera, startScreenShare, stopScreenShare,
-      selectMovie, initLocalStream,
+      selectMovie, initLocalStream, changeQuality,
     }}>
       {children}
     </RoomContext.Provider>

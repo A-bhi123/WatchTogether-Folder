@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
 import {
   Play, Pause, Volume2, VolumeX, Maximize, Minimize,
-  FolderOpen, SkipBack, SkipForward, Gauge
+  FolderOpen, SkipBack, SkipForward, Gauge,Wifi
 } from 'lucide-react';
 import { useRoom } from '../../contexts/RoomContext';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -32,7 +32,7 @@ export default function VideoPlayer({ showControls: showControlsProp, videoContr
     videoState, isHost,
     emitPlay, emitPause, emitSeek, emitRate,
     localMovieUrl, hasMovie, movieName,
-    selectMovie,
+    selectMovie, changeQuality,
     movieStream,
     movieCodecError,
   } = useRoom() as any;
@@ -60,7 +60,10 @@ export default function VideoPlayer({ showControls: showControlsProp, videoContr
   const [isSeeking, setIsSeeking] = useState(false);
   const [showFlash, setShowFlash] = useState<'play' | 'pause' | null>(null);
   const [showSpeedMenu, setShowSpeedMenu] = useState(false);
+  const [showQualityMenu, setShowQualityMenu] = useState(false);
+  const [currentQuality, setCurrentQuality] = useState<'480p' | '720p' | '1080p'>('720p');
   const [guestBuffering, setGuestBuffering] = useState(false);
+  const qualityMenuRef = useRef<HTMLDivElement>(null);
   const hideTimer = useRef<ReturnType<typeof setTimeout>>();
   const speedMenuRef = useRef<HTMLDivElement>(null);
   const syncAnchorRef = useRef({ time: 0, at: 0, playing: false });
@@ -510,6 +513,55 @@ style={{
                     <span>Change</span>
                   </button>
                 </>
+              )}
+
+              {/* Quality (host only) */}
+              {isHost && (
+                <div ref={qualityMenuRef} className="relative">
+                  <button
+                    onClick={() => setShowQualityMenu(!showQualityMenu)}
+                    className="flex items-center gap-1.5 text-xs font-semibold text-white hover:text-netflix-red transition-colors bg-white/10 hover:bg-white/20 px-2.5 py-1.5 rounded-lg"
+                  >
+                    <Wifi className="w-3.5 h-3.5" />
+                    <span>{currentQuality}</span>
+                  </button>
+                  <AnimatePresence>
+                    {showQualityMenu && (
+                      <motion.div
+                        initial={{ opacity: 0, y: 8, scale: 0.95 }}
+                        animate={{ opacity: 1, y: 0, scale: 1 }}
+                        exit={{ opacity: 0, y: 8, scale: 0.95 }}
+                        transition={{ duration: 0.15 }}
+                        className="absolute bottom-full right-0 mb-2 bg-surface-overlay border border-white/10 rounded-xl overflow-hidden shadow-2xl z-50"
+                        style={{ minWidth: 110 }}
+                      >
+                        <div className="px-3 py-2 border-b border-white/10">
+                          <p className="text-[10px] text-netflix-gray font-medium uppercase tracking-wider">Stream Quality</p>
+                        </div>
+                        {(['480p', '720p', '1080p'] as const).map(q => (
+                          <button
+                            key={q}
+                            onClick={() => {
+                              changeQuality(q);
+                              setCurrentQuality(q);
+                              setShowQualityMenu(false);
+                            }}
+                            className={`w-full flex items-center justify-between px-3 py-2 text-sm transition-colors hover:bg-white/10 ${
+                              currentQuality === q
+                                ? 'text-netflix-red font-semibold bg-netflix-red/10'
+                                : 'text-white'
+                            }`}
+                          >
+                            <span>{q}</span>
+                            {currentQuality === q && (
+                              <div className="w-1.5 h-1.5 rounded-full bg-netflix-red" />
+                            )}
+                          </button>
+                        ))}
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </div>
               )}
 
               <div className={`flex items-center gap-1 text-xs ${videoState.isPlaying ? 'text-green-400' : 'text-netflix-gray'}`}>

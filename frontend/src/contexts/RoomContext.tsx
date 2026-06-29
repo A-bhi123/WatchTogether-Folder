@@ -182,13 +182,14 @@ export const RoomProvider = ({ children }: { children: ReactNode }) => {
       const params = sender.getParameters();
       if (!params.encodings || params.encodings.length === 0) return;
       let changed = false;
-      if (sender.track.kind === 'video' && (params.encodings[0].maxBitrate ?? 0) < 20_000_000) {
-        params.encodings[0].maxBitrate = 20_000_000; // 20 Mbps
+      if (sender.track.kind === 'video') {
+        params.encodings[0].maxBitrate = 20_000_000;
         params.encodings[0].maxFramerate = 60;
+        params.encodings[0].scaleResolutionDownBy = 1.0;
         changed = true;
       }
-      if (sender.track.kind === 'audio' && (params.encodings[0].maxBitrate ?? 0) < 510_000) {
-        params.encodings[0].maxBitrate = 510_000; // 510 kbps
+      if (sender.track.kind === 'audio') {
+        params.encodings[0].maxBitrate = 510_000;
         changed = true;
       }
       if (changed) sender.setParameters(params).catch(() => {});
